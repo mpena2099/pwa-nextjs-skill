@@ -21,6 +21,9 @@ what goes wrong. What goes wrong is:
 - An install button gated on `beforeinstallprompt` reproduces the exact problem it
   was added to solve, because Chrome fires that event just as sparingly as it shows
   its own prompt.
+- A `beforeinstallprompt` listener added in `useEffect` misses the event when Chrome
+  fires it during hydration, and so does `next/script` with `beforeInteractive`, which
+  the App Router runs late. Only an inline `<script>` in `<head>` catches it reliably.
 - `display-mode: standalone` tells you whether *this page* runs inside the app, not
   whether the app is installed, so the button lingers for people who already have it.
 - Half the debugging time goes to measurements that were broken: reading a page after
@@ -28,7 +31,8 @@ what goes wrong. What goes wrong is:
   a bot-protection challenge page as if it were the app.
 
 The skill encodes all of it, plus the shape of a complete implementation so it ships
-in one pass instead of five.
+in one pass instead of five. That includes a ready install entry for public apps: a
+large banner on the first visit that collapses into a small, permanent "Get app" chip.
 
 ## What's in here
 
