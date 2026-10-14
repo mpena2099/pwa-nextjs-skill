@@ -41,40 +41,50 @@ in one pass instead of five.
 
 Reasoning about installability criteria is how you get it wrong. Chrome will just
 tell you, over CDP. The harness boots your production build on a spare port, drives
-headless Chromium, and asserts sixteen things including `Page.getInstallabilityErrors`,
-worker state, middleware exemptions, duplicate meta tags, and both directions of the
-install button.
+headless Chromium, and asserts up to twenty things including `Page.getInstallabilityErrors`,
+worker state, middleware exemptions, duplicate meta tags, both directions of the
+install button, and the offline fallback with the server actually down.
+
+Run it from the root of the project being tested. It loads Playwright from that
+project, so the script itself can stay wherever the skill was installed:
 
 ```bash
+pnpm add -D @playwright/test && npx playwright install chromium   # once
 pnpm build
-node verify-pwa.mjs
+node path/to/verify-pwa.mjs
 ```
 
 Exits non-zero on failure, so it drops into CI as is.
 
 ```
+PASS  home page loads
 PASS  chrome reports no installability errors
 PASS  manifest parses without errors
-PASS  icons include 192 and 512
-PASS  a maskable icon exists
+PASS  /manifest.webmanifest is served anonymously
 PASS  /sw.js is served anonymously
+PASS  /dashboard still requires auth
+PASS  service worker active and controlling
 PASS  service worker has a fetch handler (required for the auto prompt)
-PASS  service worker excludes API routes from cache
 PASS  install button renders without beforeinstallprompt
 PASS  install button hides when already installed
+PASS  offline navigation falls back to offline.html
 ...
 all green
 ```
+
+It refuses to run on a busy port, so it never tests a stale server by mistake, and
+prints the server's output when boot fails.
 
 Configurable through the environment:
 
 | Variable | Default |
 |---|---|
-| `PORT` | `3199` |
-| `START_CMD` | `pnpm start` |
+| `PORT` | `3199`, must be free |
+| `START_CMD` | `pnpm start`; the port goes in through `PORT`, so `npm start` works too |
 | `BUTTON_LABEL` | `instal`, the common prefix of "install" and "instalar" |
+| `PROTECTED_PATH` | unset; when set, e.g. `/dashboard`, also asserts it still requires auth |
 
-Requires `@playwright/test` in the project being tested.
+POSIX only (Linux, macOS).
 
 ## Scope
 
