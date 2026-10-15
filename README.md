@@ -32,7 +32,9 @@ what goes wrong. What goes wrong is:
 
 The skill encodes all of it, plus the shape of a complete implementation so it ships
 in one pass instead of five. That includes a ready install entry for public apps: a
-large banner on the first visit that collapses into a small, permanent "Get app" chip.
+large banner on the first visit that collapses into a small, permanent "Get app" chip,
+and a service worker that caches only `/_next/static/` at runtime, so no API response,
+avatar or upload from a logged-in user is ever stored.
 
 ## What's in here
 
@@ -90,11 +92,18 @@ Configurable through the environment:
 
 POSIX only (Linux, macOS).
 
-## Scope
+## Scope and limits
 
-Written for **Next.js App Router** (`app/manifest.ts`, `proxy.ts` / `middleware.ts`,
-Next 15 and 16). For Workbox, Vite, or framework-agnostic caching strategy advice,
-use a general PWA skill instead.
+Written for the **Next.js App Router** (`app/manifest.ts`, `proxy.ts` / `middleware.ts`,
+Next 15 and 16), verified on Next.js 16.4.0. For the Pages Router, Workbox, Vite, or
+framework-agnostic caching strategy advice, use a general PWA skill instead.
+
+- ImageMagick is needed only to generate icons. The commands use `magick` (v7); on v6,
+  replace it with `convert`.
+- `getInstalledRelatedApps()` works in Chrome only. Elsewhere the install button stays
+  visible, by design.
+- Headless Chromium never fires `beforeinstallprompt`, so the harness proves the button
+  renders without it, not the native prompt itself.
 
 ## License
 
