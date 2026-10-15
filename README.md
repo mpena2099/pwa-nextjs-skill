@@ -58,6 +58,7 @@ project, so the script itself can stay wherever the skill was installed:
 pnpm add -D @playwright/test && npx playwright install chromium   # once
 pnpm build
 node path/to/verify-pwa.mjs
+PROTECTED_PATH=/dashboard node path/to/verify-pwa.mjs   # also checks auth still redirects
 ```
 
 Exits non-zero on failure, so it drops into CI as is.
